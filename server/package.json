@@ -1,0 +1,30 @@
+{
+  "name": "zanzibar-mice-backend",
+  "version": "1.0.0",
+  "description": "Backend for Zanzibar MICE Connect",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": ["mice", "zanzibar", "booking", "hotels"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "mysql2": "^3.6.0",
+    "body-parser": "^1.20.2",
+    "nodemailer": "^6.9.3",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.3",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.8.0",
+    "http-proxy-middleware": "^2.0.6",
+    "joi": "^17.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,365 @@
+// Admin Dashboard JavaScript
+
+const API_BASE_URL = 'http://localhost:5000/api';
+let authToken = localStorage.getItem('adminToken');
+let currentEditingHotelId = null;
+
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (authToken) {
+        // User is already logged in
+        showDashboard();
+        loadHotels();
+        loadBookings();
+    } else {
+        // Show login section
+        showLogin();
+    }
+});
+
+// Show login section
+function showLogin() {
+    document.getElementById('loginSection').style.display = 'flex';
+    document.getElementById('registerSection').style.display = 'none';
+    document.getElementById('dashboardSection').style.display = 'none';
+}
+
+// Show register section
+function showRegister() {
+    event.preventDefault();
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('registerSection').style.display = 'flex';
+    document.getElementById('dashboardSection').style.display = 'none';
+}
+
+// Show dashboard
+function showDashboard() {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('registerSection').style.display = 'none';
+    document.getElementById('dashboardSection').style.display = 'block';
+}
+
+// Handle login
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.token) {
+            authToken = data.token;
+            localStorage.setItem('adminToken', authToken);
+            showLoginMessage('Login successful!', 'success');
+            setTimeout(() => {
+                showDashboard();
+                loadHotels();
+                loadBookings();
+            }, 1500);
+        } else {
+            showLoginMessage(data.message || 'Invalid email or password', 'error');
+        }
+    } catch (error) {
+        showLoginMessage('Error during login', 'error');
+        console.error(error);
+    }
+}
+
+// Handle register
+async function handleRegister(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.token) {
+            authToken = data.token;
+            localStorage.setItem('adminToken', authToken);
+            showLoginMessage('Registration successful!', 'success');
+            setTimeout(() => {
+                showDashboard();
+                loadHotels();
+                loadBookings();
+            }, 1500);
+        } else {
+            showLoginMessage(data.message || 'Registration failed', 'error');
+        }
+    } catch (error) {
+        showLoginMessage('Error during registration', 'error');
+        console.error(error);
+    }
+}
+
+// Show login/register message
+function showLoginMessage(message, type) {
+    const messageDiv = document.querySelector(`#${type === 'error' ? 'loginSection' : 'loginSection'}`);
+    const tempMsg = document.createElement('div');
+    tempMsg.className = `message ${type}`;
+    tempMsg.textContent = message;
+    tempMsg.style.margin = '20px 0';
+    
+    const form = document.querySelector('#loginForm') || document.querySelector('#registerForm');
+    form.parentElement.insertBefore(tempMsg, form);
+    
+    setTimeout(() => {
+        tempMsg.remove();
+    }, 4000);
+}
+
+// Switch tabs
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName).classList.add('active');
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+}
+
+// Load all hotels
+async function loadHotels() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/hotels`);
+        const data = await response.json();
+        
+        const hotelsList = document.getElementById('hotelsList');
+        
+        if (data.data && data.data.length > 0) {
+            hotelsList.innerHTML = data.data.map(hotel => `
+                <div class="item-card">
+                    <div class="item-info">
+                        <h3>${hotel.name}</h3>
+                        <p>📍 Location: ${hotel.location}</p>
+                        <p>👥 Capacity: ${hotel.capacity} guests</p>
+                        <p>💰 Price: ${hotel.price_range}</p>
+                        <p>📧 Email: ${hotel.email}</p>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-edit" onclick="editHotel(${hotel.id}, '${hotel.name}', '${hotel.location}', ${hotel.capacity}, '${hotel.price_range}', '${hotel.description}', '${hotel.image_url}', '${hotel.email}')">✏️ Edit</button>
+                        <button class="btn btn-delete" onclick="deleteHotel(${hotel.id})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            hotelsList.innerHTML = '<div class="empty-state"><p>No hotels found</p></div>';
+        }
+    } catch (error) {
+        showMessage('Error loading hotels', 'error');
+        console.error(error);
+    }
+}
+
+// Load all bookings
+async function loadBookings() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/bookings`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        const data = await response.json();
+        const bookingsList = document.getElementById('bookingsList');
+        
+        if (data.data && data.data.length > 0) {
+            bookingsList.innerHTML = data.data.map(booking => `
+                <div class="item-card">
+                    <div class="item-info">
+                        <h3>${booking.client_name}</h3>
+                        <p>🏨 Hotel: ${booking.hotel_name}</p>
+                        <p>📧 Email: ${booking.email}</p>
+                        <p>🎉 Event: ${booking.event_type}</p>
+                        <p>👥 Guests: ${booking.guests}</p>
+                        <p>📅 Date: ${new Date(booking.event_date).toLocaleDateString()}</p>
+                        <p>💬 Message: ${booking.message}</p>
+                        <span class="status ${booking.status}">${booking.status.toUpperCase()}</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-confirm" onclick="updateBookingStatus(${booking.id}, 'confirmed')">✓ Confirm</button>
+                        <button class="btn btn-reject" onclick="updateBookingStatus(${booking.id}, 'rejected')">✕ Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            bookingsList.innerHTML = '<div class="empty-state"><p>No bookings found</p></div>';
+        }
+    } catch (error) {
+        showMessage('Error loading bookings', 'error');
+        console.error(error);
+    }
+}
+
+// Open add hotel modal
+function openAddHotelModal() {
+    currentEditingHotelId = null;
+    document.getElementById('modalTitle').textContent = 'Add New Hotel';
+    document.getElementById('hotelForm').reset();
+    document.getElementById('hotelModal').classList.add('show');
+}
+
+// Edit hotel
+function editHotel(id, name, location, capacity, price, description, image, email) {
+    currentEditingHotelId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Hotel';
+    document.getElementById('hotelName').value = name;
+    document.getElementById('hotelLocation').value = location;
+    document.getElementById('hotelCapacity').value = capacity;
+    document.getElementById('hotelPrice').value = price;
+    document.getElementById('hotelDescription').value = description;
+    document.getElementById('hotelImage').value = image;
+    document.getElementById('hotelEmail').value = email;
+    document.getElementById('hotelModal').classList.add('show');
+}
+
+// Save hotel (add or edit)
+async function saveHotel(event) {
+    event.preventDefault();
+    
+    const hotelData = {
+        name: document.getElementById('hotelName').value,
+        location: document.getElementById('hotelLocation').value,
+        capacity: parseInt(document.getElementById('hotelCapacity').value),
+        price_range: document.getElementById('hotelPrice').value,
+        description: document.getElementById('hotelDescription').value,
+        image_url: document.getElementById('hotelImage').value,
+        email: document.getElementById('hotelEmail').value
+    };
+    
+    try {
+        let response;
+        if (currentEditingHotelId) {
+            // Update hotel
+            response = await fetch(`${API_BASE_URL}/admin/hotel/${currentEditingHotelId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(hotelData)
+            });
+        } else {
+            // Add new hotel
+            response = await fetch(`${API_BASE_URL}/admin/hotel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(hotelData)
+            });
+        }
+        
+        if (response.ok) {
+            showMessage(currentEditingHotelId ? 'Hotel updated successfully!' : 'Hotel added successfully!', 'success');
+            closeHotelModal();
+            loadHotels();
+        } else {
+            showMessage('Error saving hotel', 'error');
+        }
+    } catch (error) {
+        showMessage('Error saving hotel', 'error');
+        console.error(error);
+    }
+}
+
+// Delete hotel
+async function deleteHotel(id) {
+    if (!confirm('Are you sure you want to delete this hotel?')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/hotel/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            showMessage('Hotel deleted successfully!', 'success');
+            loadHotels();
+        } else {
+            showMessage('Error deleting hotel', 'error');
+        }
+    } catch (error) {
+        showMessage('Error deleting hotel', 'error');
+        console.error(error);
+    }
+}
+
+// Update booking status
+async function updateBookingStatus(id, status) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/booking/${id}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (response.ok) {
+            showMessage(`Booking ${status} successfully!`, 'success');
+            loadBookings();
+        } else {
+            showMessage('Error updating booking status', 'error');
+        }
+    } catch (error) {
+        showMessage('Error updating booking status', 'error');
+        console.error(error);
+    }
+}
+
+// Close hotel modal
+function closeHotelModal() {
+    document.getElementById('hotelModal').classList.remove('show');
+    document.getElementById('hotelForm').reset();
+}
+
+// Show message
+function showMessage(message, type) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.textContent = message;
+    messageDiv.className = `message ${type}`;
+    messageDiv.style.display = 'block';
+    
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 4000);
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem('adminToken');
+    window.location.href = '/admin/login';
+}

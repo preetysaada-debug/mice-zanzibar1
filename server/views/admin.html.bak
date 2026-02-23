@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Zanzibar MICE Connect</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <!-- Login Section (hidden by default if logged in) -->
+    <div id="loginSection" class="login-container">
+        <div class="login-box">
+            <h2>🔐 Admin Login</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-login">Login</button>
+                <p>No account? <a href="#" onclick="showRegister()">Register here</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Section (hidden by default) -->
+    <div id="registerSection" class="login-container" style="display: none;">
+        <div class="login-box">
+            <h2>📝 Admin Register</h2>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password:</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-login">Register</button>
+                <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section (hidden until logged in) -->
+    <div id="dashboardSection" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <h1>📊 Admin Dashboard</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Message Display -->
+        <div id="message" class="message"></div>
+        <div id="message" class="message" style="display: none;"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('hotels')">🏨 Manage Hotels</button>
+            <button class="tab-btn" onclick="switchTab('bookings')">📋 Manage Bookings</button>
+        </div>
+
+        <!-- Hotels Tab -->
+        <div id="hotels" class="tab-content active">
+            <h2>Hotels Management</h2>
+            <button class="btn btn-add" onclick="openAddHotelModal()">+ Add New Hotel</button>
+            <div id="hotelsList" class="items-grid"></div>
+        </div>
+
+        <!-- Bookings Tab -->
+        <div id="bookings" class="tab-content">
+            <h2>Bookings Management</h2>
+            <div id="bookingsList" class="items-grid"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Hotel Modal -->
+    <div id="hotelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modalTitle">Add New Hotel</span>
+                <button class="close-btn" onclick="closeHotelModal()">&times;</button>
+            </div>
+            <form id="hotelForm" onsubmit="saveHotel(event)">
+                <div class="form-group">
+                    <label>Hotel Name</label>
+                    <input type="text" id="hotelName" required>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="hotelLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>Capacity</label>
+                    <input type="number" id="hotelCapacity" required>
+                </div>
+                <div class="form-group">
+                    <label>Price Range</label>
+                    <input type="text" id="hotelPrice" placeholder="e.g., $$$">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="hotelDescription" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="hotelImage">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="hotelEmail">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeHotelModal()">Cancel</button>
+                    <button type="submit" class="btn btn-submit">Save Hotel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div> <!-- End dashboardSection -->
+
+    <script src="/js/admin.js"></script>
+</body>
+</html>

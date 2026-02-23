@@ -1,0 +1,159 @@
+.booking-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f5f3ff 0%, #fce7f3 100%);
+  padding: 20px;
+}
+
+.booking-page.error-state {
+  justify-content: center;
+  align-items: center;
+}
+
+.error-content {
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.15);
+}
+
+.error-content p {
+  font-size: 1.2rem;
+  color: #475569;
+  margin-bottom: 20px;
+  font-family: "Poppins", "Inter", sans-serif;
+  font-weight: 600;
+}
+
+.booking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(59, 130, 246, 0.2);
+}
+
+.booking-header h1 {
+  color: white;
+  font-size: 2rem;
+  font-weight: 900;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  text-align: center;
+  flex: 1;
+  letter-spacing: 0.5px;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateX(-2px);
+}
+
+.booking-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 0;
+}
+
+.success-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(16, 185, 129, 0.3);
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  animation: slideUp 0.6s ease, fadeOut 0.6s ease 2.4s forwards;
+  z-index: 1000;
+}
+
+.booking-footer {
+  text-align: center;
+  padding: 20px;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin-top: 30px;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .booking-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .booking-main {
+    padding: 20px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .booking-page {
+    padding: 10px;
+  }
+
+  .booking-header {
+    padding: 15px;
+  }
+
+  .booking-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .back-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}
